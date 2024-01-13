@@ -1,0 +1,64 @@
+import numpy as np
+import time
+
+def generate_and_sort_large_dataset(size):
+    # Generate a large dataset of random integers
+    array = np.random.randint(0, 1000000, size=size)
+
+    # Shuffle the sequence of values
+    np.random.shuffle(array)
+
+    # Repeat the sorting process to get a more accurate execution time
+    num_repeats = 10
+    total_time = 0
+
+    for _ in range(num_repeats):
+        start_time = time.time()
+
+        # Sort the array using merge sort
+        merge_sort(array)
+
+        end_time = time.time()
+        execution_time = end_time - start_time
+        total_time += execution_time
+
+    average_time = total_time / num_repeats
+
+    print(f'Generated and sorted {size} values in average time: {average_time:.6f} seconds')
+
+def merge_sort(arr):
+    if len(arr) > 1:
+        mid = len(arr) // 2
+        left_half = arr[:mid]
+        right_half = arr[mid:]
+
+        merge_sort(left_half)
+        merge_sort(right_half)
+
+        i = j = k = 0
+
+        while i < len(left_half) and j < len(right_half):
+            if left_half[i] < right_half[j]:
+                arr[k] = left_half[i]
+                i += 1
+            else:
+                arr[k] = right_half[j]
+                j += 1
+            k += 1
+
+        while i < len(left_half):
+            arr[k] = left_half[i]
+            i += 1
+            k += 1
+
+        while j < len(right_half):
+            arr[k] = right_half[j]
+            j += 1
+            k += 1
+
+if __name__ == "__main__":
+    # Specify the size of the dataset (adjust as needed)
+    dataset_size = 500000
+
+    # Generate, shuffle, and sort the large dataset
+    generate_and_sort_large_dataset(dataset_size)
