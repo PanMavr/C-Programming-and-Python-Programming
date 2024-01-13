@@ -1,0 +1,116 @@
+#include <stdio.h>
+#include <stdlib.h>
+#include <time.h>
+
+void generate_and_sort_large_dataset(int size);
+
+int main() {
+    // Specify the size of the dataset (adjust as needed)
+    int dataset_size = 500000;
+
+    // Generate, shuffle, and sort the large dataset
+    generate_and_sort_large_dataset(dataset_size);
+
+    return 0;
+}
+
+void merge(int arr[], int l, int m, int r);
+void merge_sort(int arr[], int l, int r);
+void generate_and_sort_large_dataset(int size);
+
+void generate_and_sort_large_dataset(int size) {
+    // Generate a large dataset of random integers
+    int* array = (int*)malloc(size * sizeof(int));
+
+    srand(time(NULL));
+    for (int i = 0; i < size; i++) {
+        array[i] = rand() % 1000000;
+    }
+
+    // Shuffle the sequence of values
+    for (int i = size - 1; i > 0; i--) {
+        int j = rand() % (i + 1);
+        int temp = array[i];
+        array[i] = array[j];
+        array[j] = temp;
+    }
+
+    // Repeat the sorting process to get a more accurate execution time
+    int num_repeats = 10;
+    clock_t total_time = 0;
+
+    for (int repeat = 0; repeat < num_repeats; repeat++) {
+        clock_t start_time = clock();
+
+        // Sort the array using merge sort
+        merge_sort(array, 0, size - 1);
+
+        clock_t end_time = clock();
+        total_time += end_time - start_time;
+    }
+
+    double average_time = ((double)total_time) / (num_repeats * CLOCKS_PER_SEC);
+
+    printf("Generated and sorted %d values in average time: %.6f seconds\n", size, average_time);
+
+    // Free dynamically allocated memory
+    free(array);
+}
+
+void merge(int arr[], int l, int m, int r) {
+    int i, j, k;
+    int n1 = m - l + 1;
+    int n2 = r - m;
+
+    // Create temporary arrays
+    int L[n1], R[n2];
+
+    // Copy data to temporary arrays L[] and R[]
+    for (i = 0; i < n1; i++)
+        L[i] = arr[l + i];
+    for (j = 0; j < n2; j++)
+        R[j] = arr[m + 1 + j];
+
+    // Merge the temporary arrays back into arr[l..r]
+    i = 0;
+    j = 0;
+    k = l;
+    while (i < n1 && j < n2) {
+        if (L[i] <= R[j]) {
+            arr[k] = L[i];
+            i++;
+        } else {
+            arr[k] = R[j];
+            j++;
+        }
+        k++;
+    }
+
+    // Copy the remaining elements of L[], if there are any
+    while (i < n1) {
+        arr[k] = L[i];
+        i++;
+        k++;
+    }
+
+    // Copy the remaining elements of R[], if there are any
+    while (j < n2) {
+        arr[k] = R[j];
+        j++;
+        k++;
+    }
+}
+
+void merge_sort(int arr[], int l, int r) {
+    if (l < r) {
+        // Same as (l+r)/2, but avoids overflow for large l and r
+        int m = l + (r - l) / 2;
+
+        // Sort first and second halves
+        merge_sort(arr, l, m);
+        merge_sort(arr, m + 1, r);
+
+        // Merge the sorted halves
+        merge(arr, l, m, r);
+    }
+}
